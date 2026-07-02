@@ -1,0 +1,29 @@
+# 电商客服机器人 SaaS 依赖
+
+# Web框架
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# 数据库
+sqlalchemy>=2.0.0
+
+# 认证
+bcrypt>=4.0.0
+PyJWT>=2.8.0
+
+# HTTP客户端
+httpx>=0.25.0
+
+# 数据验证
+pydantic>=2.5.0
+pydantic[email]>=2.5.0
+
+# 工具
+python-multipart>=0.0.6
+
+# 工具
+python-multipart>=0.0.6
+
+# 微信支付
+cryptography>=41.0.0
+qrcode>=7.4.2

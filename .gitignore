@@ -1,0 +1,7 @@
+node_modules/
+*.pyc
+__pycache__/
+*.db
+.env
+frontend/dist/
+*.egg-info/

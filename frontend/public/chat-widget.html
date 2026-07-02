@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI智能客服</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; }
+    
+    /* 演示页面背景 */
+    .demo-page { padding: 40px; max-width: 800px; margin: 0 auto; }
+    .demo-page h1 { color: #333; margin-bottom: 16px; }
+    .demo-page p { color: #666; line-height: 1.8; margin-bottom: 12px; }
+    
+    /* 悬浮按钮 */
+    #chat-bubble {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+      z-index: 9999;
+      border: none;
+    }
+    #chat-bubble:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 24px rgba(102, 126, 234, 0.6);
+    }
+    #chat-bubble.open { transform: rotate(45deg); }
+    
+    /* 聊天窗口 */
+    #chat-window {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      width: 400px;
+      max-width: calc(100vw - 48px);
+      height: 560px;
+      max-height: calc(100vh - 140px);
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 9998;
+      animation: slideUp 0.3s ease;
+    }
+    #chat-window.show { display: flex; }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* 头部 */
+    .chat-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .chat-header-info h3 { font-size: 16px; font-weight: 600; }
+    .chat-header-info p { font-size: 12px; opacity: 0.8; }
+    
+    /* 消息区 */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f5f7fa;
+    }
+    .msg {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg.bot { align-items: flex-start; }
+    .msg.user { align-items: flex-end; }
+    .msg-bubble {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      line-height: 1.5;
+      font-size: 14px;
+      word-break: break-word;
+    }
+    .msg.bot .msg-bubble {
+      background: #fff;
+      color: #333;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-time {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+    }
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+      animation: typingBounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-8px); }
+    }
+    
+    /* 快捷问题 */
+    .quick-questions {
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #f5f7fa;
+      border-top: 1px solid #eee;
+    }
+    .quick-btn {
+      padding: 6px 12px;
+      border-radius: 16px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: #666;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quick-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+      background: #f0f3ff;
+    }
+    
+    /* 输入区 */
+    .chat-input {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .chat-input input:focus { border-color: #667eea; }
+    .chat-input button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    .chat-input button:hover { transform: scale(1.05); }
+    .chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* 移动端适配 */
+    @media (max-width: 480px) {
+      #chat-window {
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+      }
+      #chat-bubble { bottom: 16px; right: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 演示内容 -->
+  <div class="demo-page">
+    <h1>🛍️ 示例店铺页面</h1>
+    <p>这是一个演示页面，右下角的蓝色按钮就是 AI 智能客服弹窗。</p>
+    <p>客户进店后会自动弹出欢迎语，可以咨询商品、物流、售后等问题。</p>
+    <p>AI 客服 7×24 小时在线，实时回复客户咨询。</p>
+    <hr style="margin: 24px 0; border: none; border-top: 1px dashed #ddd;">
+    <p style="color: #999; font-size: 13px;">💡 嵌入方式：将 <code>&lt;script src="widget.js?storeId=YOUR_STORE_ID"&gt;&lt;/script&gt;</code> 添加到页面即可。</p>
+    <p style="text-align: center; margin-top: 40px; font-size: 12px; color: #bbb;">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" style="color: #bbb; text-decoration: none;">粤ICP备2026087091号-1</a>
+    </p>
+  </div>
+
+  <!-- 悬浮按钮 -->
+  <button id="chat-bubble" onclick="toggleChat()">💬</button>
+
+  <!-- 聊天窗口 -->
+  <div id="chat-window">
+    <div class="chat-header">
+      <div class="chat-avatar">🤖</div>
+      <div class="chat-header-info">
+        <h3>AI 智能客服</h3>
+        <p>7×24小时在线为您服务</p>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg bot">
+        <div class="msg-bubble">您好！欢迎来到我们的店铺 🎉 有什么可以帮您的吗？您可以问我关于商品、物流、售后等问题。</div>
+        <div class="msg-time">刚刚</div>
+      </div>
+    </div>
+    <div class="quick-questions" id="quick-questions">
+      <button class="quick-btn" onclick="askQuestion('发货时间')">📦 什么时候发货？</button>
+      <button class="quick-btn" onclick="askQuestion('运费多少')">🚚 运费多少？</button>
+      <button class="quick-btn" onclick="askQuestion('怎么退换货')">🔄 怎么退换货？</button>
+      <button class="quick-btn" onclick="askQuestion('有没有优惠')">🎁 有优惠吗？</button>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chat-input-field" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button onclick="sendMessage()" id="send-btn">➤</button>
+    </div>
+  </div>
+
+  <script>
+    // 配置 - 实际使用时通过 URL 参数传入
+    const STORE_ID = new URLSearchParams(window.location.search).get('storeId') || 'demo';
+    const API_BASE = new URLSearchParams(window.location.search).get('api') || '/api';
+
+    let isOpen = false;
+    let isLoading = false;
+
+    function toggleChat() {
+      isOpen = !isOpen;
+      const win = document.getElementById('chat-window');
+      const btn = document.getElementById('chat-bubble');
+      win.classList.toggle('show', isOpen);
+      btn.classList.toggle('open', isOpen);
+      btn.innerHTML = isOpen ? '✕' : '💬';
+      if (isOpen) document.getElementById('chat-input-field').focus();
+    }
+
+    function askQuestion(q) {
+      document.getElementById('chat-input-field').value = q;
+      sendMessage();
+    }
+
+    function addMessage(text, role) {
+      const container = document.getElementById('chat-messages');
+      const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      const div = document.createElement('div');
+      div.className = `msg ${role}`;
+      div.innerHTML = `
+        <div class="msg-bubble">${escapeHtml(text)}</div>
+        <div class="msg-time">${time}</div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      return div;
+    }
+
+    function showTyping() {
+      const container = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = 'msg bot';
+      div.id = 'typing-msg';
+      div.innerHTML = `
+        <div class="msg-bubble">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function hideTyping() {
+      const el = document.getElementById('typing-msg');
+      if (el) el.remove();
+    }
+
+    function escapeHtml(text) {
+      const d = document.createElement('div');
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chat-input-field');
+      const text = input.value.trim();
+      if (!text || isLoading) return;
+
+      input.value = '';
+      addMessage(text, 'user');
+      isLoading = true;
+      document.getElementById('send-btn').disabled = true;
+
+      // 隐藏快捷问题
+      document.getElementById('quick-questions').style.display = 'none';
+
+      showTyping();
+
+      try {
+        const resp = await fetch(`${API_BASE}/stores/${STORE_ID}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await resp.json();
+        hideTyping();
+        addMessage(data.reply || data.message || '抱歉，暂时无法回答您的问题，请稍后再试。', 'bot');
+      } catch (e) {
+        hideTyping();
+        addMessage('网络异常，请稍后再试 🙏', 'bot');
+      } finally {
+        isLoading = false;
+        document.getElementById('send-btn').disabled = false;
+        input.focus();
+      }
+    }
+
+    // 3秒后自动弹出欢迎语（模拟进店自动弹窗）
+    setTimeout(() => {
+      if (!isOpen) {
+        toggleChat();
+      }
+    }, 3000);
+  </script>
+</body>
+</html>
