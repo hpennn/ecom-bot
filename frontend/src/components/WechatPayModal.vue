@@ -9,12 +9,12 @@
     <!-- 支付方式选择 -->
     <div v-if="step === 'select'" class="pay-methods">
       <div class="pay-method-item" @click="selectPayMethod('wechat')">
-        <img src="@/assets/wechat-pay-logo.png" class="pay-logo" @error="handleLogoError" />
+        <span class="pay-logo-text wechat">💚</span>
         <span>微信支付</span>
         <el-icon class="check-icon"><Check v-if="selectedMethod === 'wechat'" /></el-icon>
       </div>
       <div class="pay-method-item" @click="selectPayMethod('alipay')">
-        <img src="@/assets/alipay-logo.png" class="pay-logo" @error="handleLogoError" />
+        <span class="pay-logo-text alipay">💙</span>
         <span>支付宝</span>
         <el-tag size="small" type="info">虎皮椒</el-tag>
         <el-icon class="check-icon"><Check v-if="selectedMethod === 'alipay'" /></el-icon>
@@ -432,6 +432,12 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   margin-right: 12px;
+}
+
+.pay-logo-text {
+  font-size: 28px;
+  margin-right: 12px;
+  line-height: 32px;
 }
 
 .pay-method-item span {
