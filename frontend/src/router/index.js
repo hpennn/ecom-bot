@@ -17,6 +17,12 @@ const routes = [
     meta: { guest: true }
   },
   {
+    path: '/payment',
+    name: 'Payment',
+    component: () => import('@/views/Payment.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/',
     component: () => import('@/components/Layout.vue'),
     meta: { requiresAuth: true },
@@ -52,6 +58,12 @@ const routes = [
         meta: { title: '系统设置' }
       },
       {
+        path: 'admin',
+        name: 'Admin',
+        component: () => import('@/views/Admin.vue'),
+        meta: { title: '管理后台', requiresAdmin: true }
+      },
+      {
         path: 'pay-demo',
         name: 'PayDemo',
         component: () => import('@/pages/PayDemo.vue'),
@@ -69,7 +81,7 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  
+
   if (to.meta.requiresAuth && !token) {
     next('/login')
   } else if (to.meta.guest && token) {

@@ -7,6 +7,8 @@ FastAPI应用入口
 - 店铺知识库管理
 - AI智能自动回复（豆包API）
 - 拼多多平台接入
+- 付费管理（虎皮椒支付）
+- 管理后台
 """
 
 import os
@@ -15,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from config import ALLOWED_ORIGINS
-from database import init_db, engine, SessionLocal
+from database import init_db, add_missing_columns, engine, SessionLocal
 from api import (
     auth_router,
     stores_router,
@@ -23,7 +25,9 @@ from api import (
     conversations_router,
     webhook_router,
     settings_router,
-    wechat_pay_router
+    wechat_pay_router,
+    payment_router,
+    admin_router,
 )
 
 
@@ -36,15 +40,17 @@ async def lifespan(app: FastAPI):
     # 确保数据目录存在
     data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
     os.makedirs(data_dir, exist_ok=True)
-    
+
     # 初始化数据库
     init_db()
-    
+    # 迁移：添加新字段
+    add_missing_columns()
+
     print("✅ 数据库初始化完成")
     print("🚀 电商客服机器人服务已启动")
-    
+
     yield
-    
+
     print("👋 服务已关闭")
 
 
@@ -60,6 +66,8 @@ app = FastAPI(
 - 📚 **知识库管理**：FAQ、商品信息、话术模板
 - 🤖 **智能回复**：基于知识库匹配 + 豆包AI生成
 - 📱 **平台接入**：拼多多、淘宝、京东等
+- 💰 **付费管理**：虎皮椒支付集成
+- 🛡️ **管理后台**：用户/订单/配置管理
 
 ## 认证方式
 使用 JWT Bearer Token 认证。
@@ -68,7 +76,7 @@ app = FastAPI(
 Authorization: Bearer <your_token>
 ```
     """,
-    version="1.0.0",
+    version="1.1.0",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc"
@@ -90,6 +98,8 @@ app.include_router(knowledge_router)
 app.include_router(conversations_router)
 app.include_router(webhook_router)
 app.include_router(settings_router)
+app.include_router(payment_router)
+app.include_router(admin_router)
 
 
 @app.get("/", tags=["首页"])
@@ -97,7 +107,7 @@ def root():
     """首页"""
     return {
         "name": "电商客服机器人 SaaS",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "status": "running",
         "docs": "/docs"
     }
@@ -113,13 +123,15 @@ def health_check():
 def get_api_info():
     """获取API信息"""
     return {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "features": [
             "商家注册/登录",
             "店铺管理",
             "知识库管理",
             "AI智能回复",
-            "拼多多Webhook接入"
+            "拼多多Webhook接入",
+            "付费管理",
+            "管理后台",
         ],
         "platforms": ["拼多多", "淘宝", "京东"]
     }

@@ -171,3 +171,55 @@ class PinduoduoReplyRequest(BaseModel):
     conversation_id: str
     content: str
     message_type: str = "text"
+
+
+# ============ 付费相关 ============
+class PaymentStatusResponse(BaseModel):
+    """付费状态响应"""
+    user_id: int
+    username: str
+    paid: bool
+    paid_type: str
+    paid_at: Optional[str] = None
+    expires_at: Optional[str] = None
+    is_admin: bool = False
+    free_trial_days: int = 7
+    registered_at: Optional[str] = None
+
+
+class CreatePaymentRequest(BaseModel):
+    """创建支付请求"""
+    plan: str  # monthly / yearly / permanent
+
+
+class PaymentCreateResponse(BaseModel):
+    """创建支付响应"""
+    order_id: str
+    amount: float
+    plan: str
+    pay_url: str = ""
+    already_paid: bool = False
+
+
+# ============ 管理后台相关 ============
+class AdminStatsResponse(BaseModel):
+    """管理后台统计"""
+    total_users: int
+    paid_users: int
+    free_users: int
+    paid_rate: float
+    monthly_income: float
+    total_income: float
+    total_orders: int
+    paid_orders: int
+
+
+class UpdateUserPaidRequest(BaseModel):
+    """修改用户付费状态"""
+    paid_type: str
+    expires_at: Optional[str] = None
+
+
+class SetAdminRequest(BaseModel):
+    """设置管理员"""
+    is_admin: bool

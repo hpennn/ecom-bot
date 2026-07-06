@@ -34,6 +34,10 @@
           <el-icon><Setting /></el-icon>
           <template #title>系统设置</template>
         </el-menu-item>
+        <el-menu-item v-if="authStore.isAdmin" index="/admin">
+          <el-icon><Shield /></el-icon>
+          <template #title>管理后台</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -63,6 +67,19 @@
           </el-select>
         </div>
         <div class="header-right">
+          <!-- VIP 状态 -->
+          <el-tag v-if="authStore.isPaid" type="success" effect="plain" round size="small">
+            👑 {{ planLabel }}
+          </el-tag>
+          <el-button
+            v-else
+            type="warning"
+            size="small"
+            round
+            @click="$router.push('/payment')"
+          >
+            💎 开通会员
+          </el-button>
           <span class="username">{{ authStore.username }}</span>
           <el-button type="text" @click="authStore.logout">退出</el-button>
         </div>
@@ -78,17 +95,25 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import { DataBoard, Shop, Reading, ChatDotRound, Setting, Fold, Expand } from '@element-plus/icons-vue'
+import { DataBoard, Shop, Reading, ChatDotRound, Setting, Fold, Expand, Shield } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const appStore = useAppStore()
 const collapsed = computed(() => appStore.sidebarCollapsed)
 
-onMounted(() => {
+const planLabel = computed(() => {
+  const type = authStore.paidType
+  const labels = { monthly: '月度会员', yearly: '年度会员', permanent: '永久会员', free: '免费试用' }
+  return labels[type] || type
+})
+
+onMounted(async () => {
+  await authStore.fetchPaymentStatus()
   appStore.fetchStores()
 })
 </script>
