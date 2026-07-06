@@ -35,7 +35,7 @@
           <template #title>系统设置</template>
         </el-menu-item>
         <el-menu-item v-if="authStore.isAdmin" index="/admin">
-          <el-icon><Shield /></el-icon>
+          <el-icon><Lock /></el-icon>
           <template #title>管理后台</template>
         </el-menu-item>
       </el-menu>
@@ -98,7 +98,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import { DataBoard, Shop, Reading, ChatDotRound, Setting, Fold, Expand, Shield } from '@element-plus/icons-vue'
+import { DataBoard, Shop, Reading, ChatDotRound, Setting, Fold, Expand, Lock } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
