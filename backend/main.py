@@ -28,6 +28,11 @@ from api import (
     wechat_pay_router,
     payment_router,
     admin_router,
+    keyword_router,
+    transfer_router,
+    sensitive_router,
+    message_router,
+    stats_router,
 )
 
 
@@ -101,6 +106,14 @@ app.include_router(settings_router)
 app.include_router(payment_router)
 app.include_router(admin_router)
 
+
+
+# 注册新功能路由
+app.include_router(keyword_router)
+app.include_router(transfer_router)
+app.include_router(sensitive_router)
+app.include_router(message_router)
+app.include_router(stats_router)
 
 @app.get("/", tags=["首页"])
 def root():

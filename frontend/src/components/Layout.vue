@@ -26,6 +26,22 @@
           <el-icon><Reading /></el-icon>
           <template #title>知识库</template>
         </el-menu-item>
+        <el-menu-item index="/keyword-replies">
+          <el-icon><Key /></el-icon>
+          <template #title>关键词回复</template>
+        </el-menu-item>
+        <el-menu-item index="/transfer-keywords">
+          <el-icon><SwitchButton /></el-icon>
+          <template #title>转人工配置</template>
+        </el-menu-item>
+        <el-menu-item index="/sensitive-words">
+          <el-icon><WarningFilled /></el-icon>
+          <template #title>敏感词管理</template>
+        </el-menu-item>
+        <el-menu-item index="/statistics">
+          <el-icon><TrendCharts /></el-icon>
+          <template #title>数据统计</template>
+        </el-menu-item>
         <el-menu-item index="/conversations">
           <el-icon><ChatDotRound /></el-icon>
           <template #title>对话记录</template>
@@ -98,7 +114,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import { DataBoard, Shop, Reading, ChatDotRound, Setting, Fold, Expand, Lock } from '@element-plus/icons-vue'
+import { DataBoard, Shop, Reading, ChatDotRound, Setting, Fold, Expand, Lock, Key, SwitchButton, WarningFilled, TrendCharts } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()

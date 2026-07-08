@@ -11,15 +11,17 @@ from api.settings import router as settings_router
 from api.wechat_pay import router as wechat_pay_router
 from api.payment import router as payment_router
 from api.admin import router as admin_router
+from api.features import (
+    keyword_router,
+    transfer_router,
+    sensitive_router,
+    message_router,
+    stats_router,
+)
 
 __all__ = [
-    "auth_router",
-    "stores_router",
-    "knowledge_router",
-    "conversations_router",
-    "webhook_router",
-    "settings_router",
-    "wechat_pay_router",
-    "payment_router",
-    "admin_router",
+    "auth_router", "stores_router", "knowledge_router", "conversations_router",
+    "webhook_router", "settings_router", "wechat_pay_router", "payment_router",
+    "admin_router", "keyword_router", "transfer_router", "sensitive_router",
+    "message_router", "stats_router",
 ]

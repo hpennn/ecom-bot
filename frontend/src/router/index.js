@@ -58,6 +58,30 @@ const routes = [
         meta: { title: '系统设置' }
       },
       {
+        path: 'keyword-replies',
+        name: 'KeywordReplies',
+        component: () => import('@/views/KeywordReplies.vue'),
+        meta: { title: '关键词回复' }
+      },
+      {
+        path: 'transfer-keywords',
+        name: 'TransferKeywords',
+        component: () => import('@/views/TransferKeywords.vue'),
+        meta: { title: '转人工配置' }
+      },
+      {
+        path: 'sensitive-words',
+        name: 'SensitiveWords',
+        component: () => import('@/views/SensitiveWords.vue'),
+        meta: { title: '敏感词管理' }
+      },
+      {
+        path: 'statistics',
+        name: 'Statistics',
+        component: () => import('@/views/Statistics.vue'),
+        meta: { title: '数据统计' }
+      },
+      {
         path: 'admin',
         name: 'Admin',
         component: () => import('@/views/Admin.vue'),
